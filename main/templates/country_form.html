@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Country Code</title>
+    </head>
+    <body>
+        <h1>Enter Country ISO 3 Code</h1>
+        <form method="post" action="/">
+            {% csrf_token %}
+            {{form}}
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>
