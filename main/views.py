@@ -4,6 +4,7 @@ import requests
 from .models import excel_generation_request
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 class HelloWorld(APIView):
 
@@ -18,16 +19,24 @@ class GenerateExcel(APIView):
     
     def post(self, request, format="None"):
         country = request.query_params["country"]
-        AddToModel(country)
-        return Response(country)
+        id = self.AddToModel(country)
+        url = f"/api/generate-excel/{id}"
+        data = {"result-url": url,}
 
-    def AddToModel(country):
+        return Response(data)
+
+    def AddToModel(self, country):
         res = requests.get(f"https://restcountries.eu/rest/v2/alpha/{country}")
-        data = res.join()
-        excel_generation_request.object.create(
+        data = res.json()
+
+        instance = excel_generation_request(
             country = data.get('name'),
             status = 'pending',
         )
+        instance.save()
+        
+        return instance.id
+
         
 
 # Create your views here.
