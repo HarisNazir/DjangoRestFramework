@@ -39,8 +39,13 @@ class GenerateExcel(APIView):
 
 class ExcelGenerationRequest(APIView):
     def get(self, request, format="None"):
-        id = request.query_params["id"]
+        database_id = request.query_params["id"]
+        status = self.GetCountryStatus(database_id)
+        return Response(status)
 
+    def GetCountryStatus(self, database_id):
+        obj = excel_generation_request.objects.get(id=database_id)
+        return obj.status
 
         
 
