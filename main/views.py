@@ -37,6 +37,11 @@ class GenerateExcel(APIView):
         
         return instance.id
 
+class ExcelGenerationRequest(APIView):
+    def get(self, request, format="None"):
+        id = request.query_params["id"]
+
+
         
 
 # Create your views here.
