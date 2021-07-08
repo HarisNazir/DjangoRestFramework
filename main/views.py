@@ -5,7 +5,11 @@ from .models import excel_generation_request
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from celery import Celery
+from openpyxl import openpyxl
+from .generatefile import GenerateExcelFile
 
+app = Celery('hello', broker='amqp://guest@localhost//')
 class HelloWorld(APIView):
 
     def get(self, request, format="None"):
@@ -47,16 +51,13 @@ class ExcelGenerationRequest(APIView):
         obj = excel_generation_request.objects.get(id=database_id)
         return obj.status
 
-        
-
-# Create your views here.
-# def index(request):
-#     form = GetCountry(request.POST)
-#     if request.method == 'POST':
-#         if form.is_valid():
-#             iso_code = form.cleaned_data['iso3']
-#             return AddToModel(iso_code)
-#     return render(request, 'country_form.html', {'form': form})
-
-
+@app.task     
+def generate_excel(excel_generation_request_id):
+    data = excel_generation_request.objects.get(excel_generation_request_id)
+    res = requests.get(f"https://restcountrcountryies.eu/rest/v2/alpha/{data.country}")
+    join_data = res.json()
+    country_code = join_data.get("alpha3Code")
+    GenerateExcelFile(join_data)
+    data.status = "done"
+    data.save()
 
