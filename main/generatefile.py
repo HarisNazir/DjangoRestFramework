@@ -1,9 +1,10 @@
+from main.models import excel_generation_request
 from django.http.response import FileResponse
 from openpyxl import Workbook
 from django.http import FileResponse
 
 
-def GenerateExcelFile(data):
+def GenerateExcelFile(data, id):
     wb = Workbook()
     ws = wb.active
     ws['A1'] = data.get('alpha3Code')
@@ -14,4 +15,9 @@ def GenerateExcelFile(data):
     currency = data.get('currency'[0])
     ws['B5'] = (f'Cash value of assistance {currency}:')
 
-    wb.save("country.xlsx")
+    file_name = f"{country_name}-{id}.xlsx"
+
+    wb.save(file_name)
+
+    excel_generation_request.generated_file = file_name
+    excel_generation_request.save()
