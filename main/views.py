@@ -1,5 +1,8 @@
+from drf.tasks import generate_excel
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'drf.settings')
+
 from django.shortcuts import render
-from .forms import GetCountry
 import requests
 from .models import excel_generation_request
 from rest_framework.views import APIView
@@ -10,7 +13,7 @@ from .generatefile import GenerateExcelFile
 from django.http import FileResponse
 from django.http.response import FileResponse
 
-app = Celery('hello', broker='amqp://guest@localhost//')
+
 class HelloWorld(APIView):
 
     def get(self, request, format="None"):
@@ -27,7 +30,8 @@ class GenerateExcel(APIView):
         id = self.AddToModel(country)
         url = f"/api/generate-excel/{id}"
         data = {"result-url": url,}
-        generate_excel.apply_async(id)
+        breakpoint()
+        generate_excel.apply_async([id])
         return Response(data)
 
     def AddToModel(self, country):
@@ -50,14 +54,7 @@ class ExcelGenerationRequest(APIView):
         obj = excel_generation_request.objects.get(id=database_id)
         return obj.status
 
-@app.task     
-def generate_excel(excel_generation_request_id):
-    data = excel_generation_request.objects.get(id = excel_generation_request_id)
-    res = requests.get(f"https://restcountries.eu/rest/v2/alpha/{data.country}")
-    join_data = res.json()
-    GenerateExcelFile(join_data, data)
-    data.status = "done"
-    data.save()
+
 
 class Download(APIView):
     def get(self, request, id, format="None"):
