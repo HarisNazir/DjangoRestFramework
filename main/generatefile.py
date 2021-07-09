@@ -19,5 +19,6 @@ def GenerateExcelFile(data, id):
 
     wb.save(file_name)
 
-    excel_generation_request.generated_file = file_name
-    excel_generation_request.save()
+    obj = excel_generation_request.objects.get(id = id)
+    obj.generated_file = file_name
+    obj.save()

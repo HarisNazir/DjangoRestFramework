@@ -31,11 +31,9 @@ class GenerateExcel(APIView):
         return Response(data)
 
     def AddToModel(self, country):
-        res = requests.get(f"https://restcountries.eu/rest/v2/alpha/{country}")
-        data = res.json()
 
         instance = excel_generation_request(
-            country = data.get('name'),
+            country = country,
             status = 'pending',
         )
         instance.save()
@@ -55,7 +53,7 @@ class ExcelGenerationRequest(APIView):
 @app.task     
 def generate_excel(excel_generation_request_id):
     data = excel_generation_request.objects.get(id = excel_generation_request_id)
-    res = requests.get(f"https://restcountrcountryies.eu/rest/v2/alpha/{data.country}")
+    res = requests.get(f"https://restcountries.eu/rest/v2/alpha/{data.country}")
     join_data = res.json()
     GenerateExcelFile(join_data, data)
     data.status = "done"
