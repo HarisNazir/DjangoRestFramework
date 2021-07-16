@@ -1,4 +1,4 @@
-from drf.tasks import generate_excel
+from .tasks import generate_excel
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'drf.settings')
 
@@ -30,7 +30,7 @@ class GenerateExcel(APIView):
         id = self.AddToModel(country)
         url = f"/api/generate-excel/{id}"
         data = {"result-url": url,}
-        breakpoint()
+        # breakpoint()
         generate_excel.apply_async([id])
         return Response(data)
 

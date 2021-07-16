@@ -1,10 +1,10 @@
-from main.models import excel_generation_request
-from .celery import app
+from celery import shared_task
 import requests
-from main.generatefile import GenerateExcelFile
 
-@app.task     
+@shared_task  
 def generate_excel(excel_generation_request_id):
+    from .models import excel_generation_request
+    from .generatefile import GenerateExcelFile
     data = excel_generation_request.objects.get(id = excel_generation_request_id)
     res = requests.get(f"https://restcountries.eu/rest/v2/alpha/{data.country}")
     join_data = res.json()
