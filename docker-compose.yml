@@ -4,13 +4,28 @@ services:
     image: "redis:alpine"
   web:
        build: .
-       command: python3 manage.py runserver 0.0.0.0:8000
+       command: bash -c "pip install -r requirements.txt && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
        ports:
            - 8000:8000
+       stdin_open: true
+       tty: true
   celery:
        build: .
-       command : celery -A drf worker -l info
+       command : bash -c "pip install -r requirements.txt && celery -A drf worker -l info"
        volumes:
            - .:/code
        depends_on:
            - redis
+           - db
+  db:
+    image: "postgres:11"
+    environment: 
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
+
+volumes:
+  postgres_data:

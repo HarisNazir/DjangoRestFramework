@@ -30,7 +30,7 @@ class GenerateExcel(APIView):
         id = self.AddToModel(country)
         url = f"/api/generate-excel/{id}"
         data = {"result-url": url,}
-        generate_excel.apply_async([id])
+        generate_excel.apply_async([id], time_limit=10)
         return Response(data)
 
     def AddToModel(self, country):
