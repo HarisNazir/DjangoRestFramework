@@ -3,20 +3,20 @@ services:
   redis:
     image: "redis:alpine"
   web:
-       build: .
-       command: bash -c "pip install -r requirements.txt && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
-       ports:
-           - 8000:8000
-       stdin_open: true
-       tty: true
+      build: .
+      command: bash -c "pip install -r requirements.txt && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+      ports:
+          - 8000:8000
+      stdin_open: true
+      tty: true
   celery:
-       build: .
-       command : bash -c "pip install -r requirements.txt && celery -A drf worker -l info"
-       volumes:
-           - .:/code
-       depends_on:
-           - redis
-           - db
+      build: .
+      command : bash -c "pip install -r requirements.txt && celery -A drf worker -l info"
+      volumes:
+          - .:/code
+      depends_on:
+          - redis
+          - db
   db:
     image: "postgres:11"
     environment: 
@@ -26,6 +26,54 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - 5432:5432
+  
+  # celery_worker:
+  #   command: sh -c "wait-for rabbitmq:5672 && wait-for app:8000 -- celery -A mysite worker -l info"
+  #   container_name: celery_worker
+  #   depends_on:
+  #     - app
+  #     - postgres
+  #     - rabbitmq
+  #   deploy:
+  #     replicas: 2
+  #     restart_policy:
+  #       condition: on-failure
+  #     resources:
+  #       limits:
+  #         cpus: '0.50'
+  #         memory: 50M
+  #       reservations:
+  #         cpus: '0.25'
+  #         memory: 20M
+  #   hostname: celery_worker
+  #   image: app-image
+  #   networks:
+  #     - main
+  #   restart: on-failure
+
+  # celery_beat:
+  #   command: sh -c "wait-for rabbitmq:5672 && wait-for app:8000 -- celery -A mysite beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+  #   container_name: celery_beat
+  #   depends_on:
+  #     - app
+  #     - postgres
+  #     - rabbitmq
+  #   hostname: celery_beat
+  #   image: app-image
+  #   networks:
+  #     - main
+  #   restart: on-failure
+  
+  # rabbitmq:
+  #   command: rabbitmq
+  #   hostname: rabbitmq
+  #   image: rabbitmq:latest
+  #   networks:
+  #     - main
+  #   ports:
+  #     - "5672:5672"
+  #   restart: on-failure
 
 volumes:
   postgres_data:
+
