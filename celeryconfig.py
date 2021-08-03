@@ -1,3 +1,2 @@
-redis_socket_timeout = 5.0
-redis_socket_connect_timeout = 5.0
-broker_connection_timeout = 5.0
+broker_url = 'redis://redis:6379'
+result_backend = 'redis://redis:6379'
